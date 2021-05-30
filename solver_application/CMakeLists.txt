@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.4)
 set(CMAKE_CXX_STANDART 11)
 set(CMAKE_CXX_STANDART_REQUIRED ON)
 
-include(/../formatter_ex_lib/CMakeLists.txt)
+include(/formatter_ex_lib/CMakeLists.txt)
 
 # specify rule for solver_lib
 
