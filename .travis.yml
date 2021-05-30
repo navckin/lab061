@@ -28,6 +28,7 @@ addons:
         - rpm
 
 script:
+    - rm -rf _build
     - cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=install
     - cmake --build build/
     - cd build/
@@ -37,7 +38,7 @@ script:
     - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then cpack -G DragNDrop; fi
     - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then cpack -G RPM; cpack -G DEB; fi
     - cd ..
-    - rm -rf _build
+    
 
 deploy:
     provider: releases
