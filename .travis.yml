@@ -1,27 +1,59 @@
+# выбираем две ОС (хотя на момент написания отчета Travis CI поддерживает и Windows)
+os:
+    - linux
+    - osx
+
+# язык
 language: cpp
 
+# два компилятора, как в задании
 compiler:
-- gcc
-- clang
-os:
- - linux
+    - clang
+    - gcc
 
-jobs:
-  include:
-  - name: "all projects"
-    script:
-    - cmake -H. -B_build
-    - cmake --build _build
-  - name: "each CMakeLists.txt"
+# глубина клонирования
+git:
+    depth: 1
+
+tags: true
+
+# Запускаем на VM
+sudo: true
+
+# нужные аддоны
+addons:
+    apt:
+        - cmake
+        - cmake-data
+        - rpm
 
 script:
-- source ./script
+    - cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=install
+    - cmake --build build/
+    - cd build/
+    - cpack --config CPackSourceConfig.cmake # здесь получаем два пакета с исходниками
+    # поскольку c++ не поддерживается Travis (имеется в виду отсутствие поддержки matrix), 
+    # необходимо использовать ветвление в bash
+    - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then cpack -G DragNDrop; fi
+    - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then cpack -G RPM; cpack -G DEB; fi
+    - cd ..
 
-addons:
-  apt:
-    sources:
-      - george-edison55-precise-backports
-    packages:
-      - cmake
-      - cmake-data
-
+deploy:
+    provider: releases
+    # ключ будет поставлен в переменных среды Travis CI (данное решение тоже безопасно, поскольку
+    # по умолчанию переменные не могут быть выведены в логи сборки)
+    api_key: ${GITHUB_KEY}
+    # данная опция позволяет использовать wildcard при указании файлов для деплоя
+    file_glob: true
+    file:
+        - "install/packages/*.deb"
+        - "install/packages/*.rpm"
+        - "install/packages/*.dmg"
+        - "install/packages/*.tar.gz"
+        - "install/packages/*.zip"
+    # данная опция позволяет нам сделать деплой 
+    # (по умолчанию, весь выход процесса сборки подлежит удалению)
+    skip_cleanup: true
+    # деплоить только помеченные тэгом коммиты
+    on:
+        tags: true
