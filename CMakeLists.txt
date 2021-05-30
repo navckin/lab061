@@ -63,8 +63,9 @@ option(INSTALL_LIBSOLVER "Install libsolver" OFF)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(/hello_world_application)
 
-add_subdirectory(/solver_application)
+add_subdirectory(hello_world_application)
+
+add_subdirectory(solver_application)
 
 include(CPackConfig.cmake)
